@@ -14,6 +14,7 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import MenuIcon from '@mui/icons-material/Menu';
 import { Auth } from 'aws-amplify';
 import logo from '../res/scran_logo.png';
 import authHelper from '../libs/auth_helper';
@@ -37,12 +38,20 @@ class ResponsiveAppBar extends React.Component {
     this.setState({ anchorElUser: event.currentTarget });
   };
 
+  handleOpenNav = (event) => {
+    this.setState({ anchorElNav: event.currentTarget });
+  };
+
+  handleCloseNav = () => {
+    this.setState({ anchorElNav: null });
+  };
+
   handleCloseUserMenu = () => {
     this.setState({ anchorElUser: null });
   };
 
   render() {
-    const { anchorElUser } = this.state;
+    const { anchorElUser, anchorElNav } = this.state;
     const { user } = Auth;
 
     const userIsAdmin = authHelper.userIsAdmin();
@@ -60,14 +69,62 @@ class ResponsiveAppBar extends React.Component {
             >
               <img src={logo} alt="Logo" className="logo" />
             </Typography>
-            <Typography
+            {/* <Typography
               variant="h6"
               noWrap
               component="div"
               sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
             >
-              LOGO
-            </Typography>
+              <img src={logo} alt="Logo" className="logo" />
+            </Typography> */}
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={this.handleOpenNav}
+                color="inherit"
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                open={Boolean(anchorElNav)}
+                onClose={this.handleCloseNav}
+                sx={{
+                  display: { xs: 'block', md: 'none' },
+                }}
+              >
+                <MenuItem onClick={this.handleCloseNav}>
+                  <Link to="/" underline="none" className="textLink">
+                    Home
+                  </Link>
+                </MenuItem>
+                <MenuItem onClick={this.handleCloseNav}>
+                  <Link to="/menu" underline="none" className="textLink">
+                    Menu
+                  </Link>
+                </MenuItem>
+                {userIsAdmin && (
+                <MenuItem onClick={this.handleCloseNav}>
+                  <Link to="/manage" underline="none" className="textLink">
+                    Admin
+                  </Link>
+                </MenuItem>
+                )}
+              </Menu>
+            </Box>
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               <Button
                 component={Link}
