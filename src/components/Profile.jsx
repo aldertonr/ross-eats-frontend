@@ -1,43 +1,35 @@
 import React from 'react';
-import AuthService from '../services/auth.service';
+import { Auth } from 'aws-amplify';
 
 function Profile() {
-  const currentUser = AuthService.getCurrentUser();
-
+  const { user } = Auth;
   return (
     <div className="container">
       <header className="jumbotron">
-        <h3>
-          <strong>{currentUser.user}</strong>
-          {'\'s '}
+        <h2>
           Profile
-        </h3>
+        </h2>
       </header>
       <p>
-        <strong>Token:</strong>
-        {' '}
-        {currentUser.token.substring(0, 20)}
-        {' '}
-        ...
-        {' '}
-        {currentUser.token.substr(currentUser.token.length - 20)}
+        <strong>Username: </strong>
+        {user.username}
       </p>
       <p>
-        <strong>Username:</strong>
-        {' '}
-        {currentUser.user}
+        <strong>Email Verified: </strong>
+        {user.attributes.email_verified ? 'Yes' : 'No'}
       </p>
       <p>
-        <strong>Email:</strong>
-        {' '}
-        {currentUser.email}
+        <strong>User Groups: </strong>
+        {user.signInUserSession.idToken.payload['cognito:groups'].join(', ')}
       </p>
-      <strong>Authorities:</strong>
-      <ul>
-        {currentUser.roles
-          // eslint-disable-next-line react/no-array-index-key
-          && currentUser.roles.map((role, index) => <li key={index}>{role}</li>)}
-      </ul>
+      <p>
+        <strong>Login Time: </strong>
+        {new Date(user.signInUserSession.idToken.payload.iat * 1000).toLocaleString()}
+      </p>
+      <p>
+        <strong>Token Expiry Time: </strong>
+        {new Date(user.signInUserSession.idToken.payload.exp * 1000).toLocaleString()}
+      </p>
     </div>
   );
 }

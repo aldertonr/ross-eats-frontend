@@ -1,28 +1,32 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/prop-types */
 import React, { useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import {
+  Routes, Route, Navigate, useLocation,
+} from 'react-router-dom';
 import './App.css';
 import { Snackbar, Alert, Slide } from '@mui/material';
+import { withAuthenticator, Authenticator } from '@aws-amplify/ui-react';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Menu from './components/Menu';
-import Login from './components/Login';
-import Register from './components/Register';
 import Profile from './components/Profile';
 import PageNotFound from './components/404';
-// import AuthService from './services/auth.service';
+import UnauthPage from './components/403';
+import Manage from './components/auth/Manage';
 import EventBus from './libs/EventBus';
-import useAuth from './libs/UseAuth';
+import authHelper from './libs/auth_helper';
 
-function RequireAuth({ children }) {
-  const { authed } = useAuth();
-
-  return authed === true ? children : <Navigate to="/login" replace />;
+function AdminRoute({ children }) {
+  const location = useLocation();
+  const userIsAdmin = authHelper.userIsAdmin();
+  if (!userIsAdmin) {
+    return <Navigate to="/unauth" state={{ from: location }} />;
+  }
+  return children;
 }
 
 function App() {
-  const [loggedIn, setIsLoggedIn] = useState(false);
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackMessage, setSnackMessage] = useState('');
   const [snackLevel, setSnackLevel] = useState('info');
@@ -33,62 +37,56 @@ function App() {
     setSnackOpen(true);
   });
 
-  EventBus.on('login', () => {
-    setIsLoggedIn(true);
-  });
-
-  EventBus.on('logout', () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  });
-
   const handleClose = () => {
     setSnackOpen(false);
   };
 
   return (
     <div className="App">
-      <Navbar userIsLoggedIn={loggedIn} />
-      <Routes>
-        <Route exact path="/" element={<Home />} />
-        <Route exact path="menu" element={<Menu />} />
-        <Route exact path="login" element={<Login />} />
-        <Route
-          exact
-          path="register"
-          element={(
-            <RequireAuth>
-              <Register />
-            </RequireAuth>
-      )}
-        />
-        <Route
-          exact
-          path="profile"
-          element={
-            <RequireAuth><Profile /></RequireAuth>
-}
-        />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-      <Snackbar
-        open={snackOpen}
-        autoHideDuration={3000}
-        onClose={handleClose}
-        TransitionComponent={Slide}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={handleClose}
-          severity={snackLevel}
-          sx={{ width: '100%' }}
-        >
-          {snackMessage}
-        </Alert>
-      </Snackbar>
+      <Authenticator>
+        {() => (
+          <>
+            <Navbar />
+            <Routes>
+              <Route exact path="/" element={<Home />} />
+              <Route exact path="menu" element={<Menu />} />
+              <Route
+                exact
+                path="profile"
+                element={<Profile />}
+              />
+              <Route
+                exact
+                path="manage"
+                element={(
+                  <AdminRoute>
+                    <Manage />
+                  </AdminRoute>
+                )}
+              />
+              <Route exact path="unauth" element={<UnauthPage />} />
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+            <Snackbar
+              open={snackOpen}
+              autoHideDuration={3000}
+              onClose={handleClose}
+              TransitionComponent={Slide}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+              <Alert
+                onClose={handleClose}
+                severity={snackLevel}
+                sx={{ width: '100%' }}
+              >
+                {snackMessage}
+              </Alert>
+            </Snackbar>
+          </>
+        )}
+      </Authenticator>
     </div>
   );
 }
 
-export default App;
+export default withAuthenticator(App);

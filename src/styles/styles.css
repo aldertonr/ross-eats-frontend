@@ -1,16 +1,15 @@
+@import "@aws-amplify/ui-react/styles.css";
+@font-face { font-family: 'Bebas Neue'; 
+    src: url("https://fonts.googleapis.com/css?family=Bebas Neue"); } 
+
+
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
+    font-family: 'Courier New', Courier;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-        monospace;
-}
 
 a, a:hover, a:visited, a:active {
     color: inherit;
@@ -25,36 +24,12 @@ a, a:hover, a:visited, a:active {
 .textLink {
     text-decoration: none;
     box-shadow: none;
+    color: black;
 }
-/* 
-label {
-    display: block;
-    margin-top: 10px;
-  } */
-/* .card-container.card {
-max-width: 350px !important;
-padding: 40px 40px;
+
+.drawerLeft {
+    height: '150px'!important;
+    background-color: '#FFFCEF'; 
+    color: 'black';
+    box-shadow: 0px 0px 10px 0px #888!important;
 }
-.card {
-background-color: #f7f7f7;
-padding: 20px 25px 30px;
-margin: 0 auto 25px;
-margin-top: 50px;
--moz-border-radius: 2px;
--webkit-border-radius: 2px;
-border-radius: 2px;
--moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
--webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-}
-  */
-.profile-img-card {
-width: 96px;
-height: 96px;
-margin: 0 auto 10px;
-display: block;
--moz-border-radius: 50%;
--webkit-border-radius: 50%;
-border-radius: 50%;
-}
- 

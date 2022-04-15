@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unused-state */
 import * as React from 'react';
@@ -13,8 +14,9 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AuthService from '../services/auth.service';
+import { Auth } from 'aws-amplify';
 import logo from '../res/scran_logo.png';
+import authHelper from '../libs/auth_helper';
 
 import '../styles/styles.css';
 
@@ -24,9 +26,11 @@ class ResponsiveAppBar extends React.Component {
     this.state = {
       anchorElNav: null,
       anchorElUser: null,
-      userIsLoggedIn: false,
-      userDetails: [],
     };
+  }
+
+  componentDidMount() {
+    this.setState({ userIsAdmin: authHelper.userIsAdmin });
   }
 
   handleOpenUserMenu = (event) => {
@@ -38,13 +42,14 @@ class ResponsiveAppBar extends React.Component {
   };
 
   render() {
-    const { userDetails, anchorElUser } = this.state;
-    const logout = () => {
-      AuthService.logout();
-    };
-    const { userIsLoggedIn } = this.props;
+    const { anchorElUser } = this.state;
+    const { user } = Auth;
+
+    const userIsAdmin = authHelper.userIsAdmin();
+
+    // console.log();
     return (
-      <AppBar position="static" sx={{ backgroundColor: '#6a714f' }}>
+      <AppBar position="static" sx={{ backgroundColor: '#FFFCEF', color: 'black' }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <Typography
@@ -67,25 +72,34 @@ class ResponsiveAppBar extends React.Component {
               <Button
                 component={Link}
                 to="/"
-                sx={{ my: 2, color: 'white', display: 'block' }}
+                sx={{ my: 2, color: 'black', display: 'block' }}
               >
                 Home
               </Button>
               <Button
                 component={Link}
                 to="/menu"
-                sx={{ my: 2, color: 'white', display: 'block' }}
+                sx={{ my: 2, color: 'black', display: 'block' }}
               >
                 Menu
               </Button>
+              {userIsAdmin && (
+              <Button
+                component={Link}
+                to="/manage"
+                sx={{ my: 2, color: 'black', display: 'block' }}
+              >
+                Admin
+              </Button>
+              )}
             </Box>
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={this.handleOpenUserMenu} sx={{ p: 0 }}>
-                  {userIsLoggedIn
+                  {user
                     ? (
                       <Avatar
-                        alt={userDetails.username}
+                        alt={user.username.toUpperCase()}
                         src="/broken-image.jpg"
                       />
                     )
@@ -93,64 +107,34 @@ class ResponsiveAppBar extends React.Component {
 
                 </IconButton>
               </Tooltip>
-              {userIsLoggedIn ? (
-                <Menu
-                  sx={{ mt: '45px' }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={this.handleCloseUserMenu}
-                >
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={this.handleCloseUserMenu}
+              >
 
-                  <MenuItem onClick={this.handleCloseUserMenu}>
-                    <Link to="/login" onClick={logout} underline="none" className="textLink">
-                      Logout
-                    </Link>
-                  </MenuItem>
-                  <MenuItem onClick={this.handleCloseUserMenu}>
-                    <Link to="/profile" underline="none" className="textLink">
-                      Profile
-                    </Link>
-                  </MenuItem>
-                </Menu>
-              ) : (
-                <Menu
-                  sx={{ mt: '45px' }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={this.handleCloseUserMenu}
-                >
-                  <MenuItem onClick={this.handleCloseUserMenu}>
-                    <Link to="/login" underline="none" className="textLink">
-                      Login
-                    </Link>
-                  </MenuItem>
-                  <MenuItem onClick={this.handleCloseUserMenu}>
-                    <Link to="/register" underline="none" className="textLink">
-                      Register
-                    </Link>
-                  </MenuItem>
-                </Menu>
-              )}
+                <MenuItem onClick={this.handleCloseUserMenu}>
+                  <Link to="#" onClick={() => Auth.signOut()} underline="none" className="textLink">
+                    Logout
+                  </Link>
+                </MenuItem>
+                <MenuItem onClick={this.handleCloseUserMenu}>
+                  <Link to="/profile" underline="none" className="textLink">
+                    Profile
+                  </Link>
+                </MenuItem>
+              </Menu>
             </Box>
           </Toolbar>
         </Container>
